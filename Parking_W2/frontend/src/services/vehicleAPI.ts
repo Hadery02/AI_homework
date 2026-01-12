@@ -45,8 +45,13 @@ export const vehicleAPI = {
         },
         body: JSON.stringify(vehicle),
       });
-      if (!response.ok) throw new Error('Failed to create vehicle');
-      return await response.json();
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create vehicle');
+      }
+      return data;
     } catch (error) {
       console.error('Error creating vehicle:', error);
       throw error;

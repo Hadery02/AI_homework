@@ -80,8 +80,10 @@ function App() {
       setVehicles([...vehicles, vehicle]);
       setPendingPlateNumber(null);
       setCurrentScreen("list");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to add vehicle:", error);
+      // Re-throw error so AddVehicleForm can catch it
+      throw new Error(error.message || 'Lỗi khi thêm xe');
     } finally {
       setLoading(false);
     }
@@ -99,8 +101,6 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-[480px] h-screen max-h-[960px] bg-white shadow-2xl rounded-3xl overflow-hidden flex flex-col relative">
-        {/* Notch */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-6 bg-black rounded-b-3xl z-50"></div>
         
         {/* Content */}
         <div className="flex-1 overflow-y-auto pt-6">

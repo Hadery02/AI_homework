@@ -20,9 +20,10 @@ class Vehicle {
       [plateNumber.toUpperCase(), ownerName, phone, vehicleType, registeredDate],
       function (err) {
         if (err) {
+          console.error('Insert error:', err);
           callback(err);
         } else {
-          callback(null, { id: this.lastID, ...data });
+          callback(null, { id: this.lastID, plateNumber: plateNumber.toUpperCase(), ownerName, phone, vehicleType, registeredDate });
         }
       }
     );

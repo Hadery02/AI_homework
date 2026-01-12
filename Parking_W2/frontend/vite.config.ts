@@ -17,5 +17,10 @@ export default defineConfig({
   },
   server: {
     https: true,
+    hmr: {
+      protocol: 'wss',
+      host: 'localhost',
+      port: 5173,
+    },
   },
 })

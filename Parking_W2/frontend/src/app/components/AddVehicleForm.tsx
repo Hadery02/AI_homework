@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, AlertCircle } from "lucide-react";
 
 interface AddVehicleFormProps {
   onBack: () => void;
@@ -8,7 +8,7 @@ interface AddVehicleFormProps {
     ownerName: string;
     phone: string;
     vehicleType: string;
-  }) => void;
+  }) => Promise<void>;
   initialPlateNumber?: string;
 }
 
@@ -19,6 +19,8 @@ export function AddVehicleForm({ onBack, onSave, initialPlateNumber }: AddVehicl
     phone: "",
     vehicleType: "Ô tô",
   });
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (initialPlateNumber) {
@@ -29,12 +31,26 @@ export function AddVehicleForm({ onBack, onSave, initialPlateNumber }: AddVehicl
     }
   }, [initialPlateNumber]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
-      ...formData,
-      plateNumber: formData.plateNumber.toUpperCase(),
-    });
+    setError(null);
+    setIsLoading(true);
+    
+    try {
+      await onSave({
+        ...formData,
+        plateNumber: formData.plateNumber.toUpperCase(),
+      });
+    } catch (err: any) {
+      // Handle duplicate plate number error
+      if (err.message && err.message.includes('already exists')) {
+        setError('Biển số này đã tồn tại trong hệ thống!');
+      } else {
+        setError(err.message || 'Lỗi khi thêm xe. Vui lòng thử lại!');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (
@@ -63,6 +79,16 @@ export function AddVehicleForm({ onBack, onSave, initialPlateNumber }: AddVehicl
 
         {/* Form Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
+          {/* Error Alert */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-red-800">{error}</p>
+              </div>
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* License Plate */}
             <div>
@@ -150,10 +176,11 @@ export function AddVehicleForm({ onBack, onSave, initialPlateNumber }: AddVehicl
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 px-6 rounded-xl font-semibold text-lg flex items-center justify-center gap-3 transition-all shadow-lg hover:shadow-xl"
+              disabled={isLoading}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-4 px-6 rounded-xl font-semibold text-lg flex items-center justify-center gap-3 transition-all shadow-lg hover:shadow-xl"
             >
               <Save className="w-6 h-6" />
-              Lưu thông tin
+              {isLoading ? "Đang lưu..." : "Lưu thông tin"}
             </button>
           </form>
         </div>

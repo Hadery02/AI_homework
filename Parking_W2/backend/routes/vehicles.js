@@ -56,6 +56,15 @@ router.post('/', (req, res) => {
 
   Vehicle.create(vehicleData, (err, vehicle) => {
     if (err) {
+      console.error('Create vehicle error:', err);
+      
+      // Check for duplicate plate number error
+      if (err.message && err.message.includes('UNIQUE constraint failed')) {
+        return res.status(400).json({ 
+          error: 'Biển số xe này đã tồn tại. Vui lòng nhập biển số khác!' 
+        });
+      }
+      
       return res.status(500).json({ error: err.message });
     }
     res.status(201).json(vehicle);
