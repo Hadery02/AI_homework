@@ -42,7 +42,7 @@ export function CameraScanner({ onBack, onScanned }: CameraScannerProps) {
       
       // Check if getUserMedia is supported
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setCameraError("Trình duyệt của bạn không hỗ trợ camera. Vui lòng dùng Chrome, Firefox hoặc Safari.");
+        setCameraError("Your browser does not support camera. Please use Chrome, Firefox or Safari.");
         return;
       }
 
@@ -91,17 +91,17 @@ export function CameraScanner({ onBack, onScanned }: CameraScannerProps) {
       
     } catch (error) {
       console.error("Error accessing camera:", error);
-      let errorMessage = "Không thể truy cập camera.";
+      let errorMessage = "Cannot access camera.";
       
       if (error instanceof DOMException) {
         if (error.name === "NotAllowedError") {
-          errorMessage = "❌ Bạn đã từ chối quyền camera.\n\n➡️ Hướng dẫn cấp quyền:\n\n📱 Android: Settings > Apps > [App] > Permissions > Camera\n\n🍎 iPhone: Settings > Privacy > Camera > [App]\n\n💻 PC: Chrome > Settings > Privacy > Site settings > Camera > Allow";
+          errorMessage = "❌ You have denied camera permission.\n\n➡️ How to grant permission:\n\n📱 Android: Settings > Apps > [App] > Permissions > Camera\n\n🍎 iPhone: Settings > Privacy > Camera > [App]\n\n💻 PC: Chrome > Settings > Privacy > Site settings > Camera > Allow";
         } else if (error.name === "NotFoundError") {
-          errorMessage = "⚠️ Không tìm thấy camera trên thiết bị.\n\nVui lòng kiểm tra thiết bị có camera không.";
+          errorMessage = "⚠️ No camera found on this device.\n\nPlease check if your device has a camera.";
         } else if (error.name === "NotReadableError") {
-          errorMessage = "⚠️ Camera đang được sử dụng bởi ứng dụng khác.\n\nVui lòng đóng ứng dụng khác và thử lại.";
+          errorMessage = "⚠️ Camera is being used by another application.\n\nPlease close other applications and try again.";
         } else if (error.name === "TypeError") {
-          errorMessage = "❌ Trình duyệt không hỗ trợ camera hoặc cài đặt HTTPS.\n\nVui lòng dùng HTTPS hoặc localhost.";
+          errorMessage = "❌ Browser does not support camera or HTTPS is not configured.\n\nPlease use HTTPS or localhost.";
         }
       }
       
@@ -169,16 +169,84 @@ export function CameraScanner({ onBack, onScanned }: CameraScannerProps) {
       const canvas = canvasRef.current;
       const context = canvas.getContext("2d");
 
+      if (!context) {
+        console.error('Could not get canvas context');
+        return;
+      }
+
+      // Check if video is ready and has dimensions
+      if (video.readyState < 2 || video.videoWidth === 0 || video.videoHeight === 0) {
+        console.warn('Video not ready for capture:', {
+          readyState: video.readyState,
+          videoWidth: video.videoWidth,
+          videoHeight: video.videoHeight
+        });
+        return;
+      }
+
+      // Set canvas dimensions to match video
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
 
-      if (context) {
+      console.log('Capturing image:', {
+        videoWidth: video.videoWidth,
+        videoHeight: video.videoHeight,
+        readyState: video.readyState,
+        brightness,
+        contrast,
+        videoPlaying: !video.paused,
+        videoCurrentTime: video.currentTime
+      });
+
+      // Clear canvas first
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Reset canvas transform and filters
+      context.resetTransform();
+      context.filter = 'none';
+
+      try {
+        // Draw the video directly to canvas
+        // The CSS transforms on the video element will be ignored by drawImage
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Apply brightness and contrast filters after drawing
+        if (brightness !== 100 || contrast !== 100) {
+          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+
+          // Apply brightness and contrast
+          const brightnessMultiplier = brightness / 100;
+          const contrastMultiplier = contrast / 100;
+          const contrastOffset = 128 * (1 - contrastMultiplier);
+
+          for (let i = 0; i < data.length; i += 4) {
+            // Apply brightness
+            data[i] = Math.min(255, data[i] * brightnessMultiplier);     // Red
+            data[i + 1] = Math.min(255, data[i + 1] * brightnessMultiplier); // Green
+            data[i + 2] = Math.min(255, data[i + 2] * brightnessMultiplier); // Blue
+            // Apply contrast
+            data[i] = Math.max(0, (data[i] - 128) * contrastMultiplier + 128 + contrastOffset);
+            data[i + 1] = Math.max(0, (data[i + 1] - 128) * contrastMultiplier + 128 + contrastOffset);
+            data[i + 2] = Math.max(0, (data[i + 2] - 128) * contrastMultiplier + 128 + contrastOffset);
+          }
+
+          context.putImageData(imageData, 0, 0);
+        }
+
+        // Convert to data URL
         const imageData = canvas.toDataURL("image/jpeg", 0.95);
+        console.log('Captured image data URL length:', imageData.length);
+
         setCapturedImage(imageData);
         setIsScanning(false);
         processImage(imageData);
+
+      } catch (error) {
+        console.error('Error capturing image:', error);
       }
+    } else {
+      console.error('Video or canvas ref not available');
     }
   };
 
@@ -265,9 +333,9 @@ export function CameraScanner({ onBack, onScanned }: CameraScannerProps) {
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
             <ArrowLeft className="w-6 h-6" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">Back</span>
           </button>
-          <h1 className="text-lg font-semibold">Quét biển số</h1>
+          <h1 className="text-lg font-semibold">Scan license plate</h1>
           <div className="w-20"></div>
         </div>
       </div>
@@ -280,7 +348,7 @@ export function CameraScanner({ onBack, onScanned }: CameraScannerProps) {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
                 <AlertCircle className="w-8 h-8 text-red-600" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Lỗi Camera</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Camera Error</h2>
               <p className="text-gray-600 text-sm whitespace-pre-line">{cameraError}</p>
             </div>
 
@@ -290,7 +358,7 @@ export function CameraScanner({ onBack, onScanned }: CameraScannerProps) {
                 className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-colors"
               >
                 <Camera className="w-5 h-5" />
-                Thử lại
+                Try again
               </button>
 
               <div className="relative">
@@ -298,7 +366,7 @@ export function CameraScanner({ onBack, onScanned }: CameraScannerProps) {
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">HOẶC</span>
+                  <span className="px-2 bg-white text-gray-500">OR</span>
                 </div>
               </div>
 
@@ -314,17 +382,17 @@ export function CameraScanner({ onBack, onScanned }: CameraScannerProps) {
                 className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-xl font-semibold transition-colors"
               >
                 <Upload className="w-5 h-5" />
-                Tải ảnh lên
+                Upload photo
               </button>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
                 <p className="text-sm text-blue-800">
-                  <strong>💡 Mẹo:</strong> Để sử dụng camera:
+                  <strong>💡 Tip:</strong> To use camera:
                 </p>
                 <ul className="text-xs text-blue-700 mt-2 space-y-1 ml-4 list-disc">
-                  <li>Nhấp vào biểu tượng camera trên thanh địa chỉ</li>
-                  <li>Chọn "Cho phép" truy cập camera</li>
-                  <li>Tải lại trang nếu cần</li>
+                  <li>Click the camera icon on the address bar</li>
+                  <li>Select "Allow" for camera access</li>
+                  <li>Reload the page if needed</li>
                 </ul>
               </div>
             </div>
@@ -360,7 +428,7 @@ export function CameraScanner({ onBack, onScanned }: CameraScannerProps) {
                     ? 'bg-yellow-400 text-gray-900' 
                     : 'bg-gray-700/80 backdrop-blur text-white'
                 }`}
-                title="Đèn flash"
+                title="Flash light"
               >
                 {flashEnabled ? (
                   <Flashlight className="w-6 h-6" />
@@ -382,7 +450,7 @@ export function CameraScanner({ onBack, onScanned }: CameraScannerProps) {
                 value={brightness}
                 onChange={(e) => setBrightness(Number(e.target.value))}
                 className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-                title="Độ sáng"
+                title="Brightness"
               />
               <div className="text-xs text-white text-center mt-1">{brightness}%</div>
             </div>
@@ -399,7 +467,7 @@ export function CameraScanner({ onBack, onScanned }: CameraScannerProps) {
                 value={contrast}
                 onChange={(e) => setContrast(Number(e.target.value))}
                 className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-                title="Tương phản"
+                title="Contrast"
               />
               <div className="text-xs text-white text-center mt-1">{contrast}%</div>
             </div>
@@ -427,7 +495,7 @@ export function CameraScanner({ onBack, onScanned }: CameraScannerProps) {
               
               <p className="text-white text-center mt-4 text-sm bg-black/50 px-4 py-2 rounded-full">
                 <Scan className="inline w-4 h-4 mr-2" />
-                Căn chỉnh biển số vào khung
+                Align license plate into frame
               </p>
             </div>
           </div>
@@ -465,8 +533,8 @@ export function CameraScanner({ onBack, onScanned }: CameraScannerProps) {
               <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
                 <div className="text-center">
                   <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mb-4"></div>
-                  <p className="text-white text-lg font-medium">Đang nhận dạng biển số...</p>
-                  <p className="text-white/70 text-sm mt-2">Sử dụng AI OCR</p>
+                  <p className="text-white text-lg font-medium">Recognizing license plate...</p>
+                  <p className="text-white/70 text-sm mt-2">Using AI OCR</p>
                 </div>
               </div>
             )}
@@ -480,26 +548,26 @@ export function CameraScanner({ onBack, onScanned }: CameraScannerProps) {
                   <Check className="w-7 h-7 text-green-600" />
                 </div>
                 <h2 className="text-lg font-bold text-gray-900">
-                  {detectedPlate ? "Đã nhận dạng" : "Không nhận dạng được"}
+                  {detectedPlate ? "Recognized" : "Could not recognize"}
                 </h2>
                 {!detectedPlate && (
-                  <p className="text-xs text-gray-500 mt-1">Vui lòng nhập thủ công</p>
+                  <p className="text-xs text-gray-500 mt-1">Please enter manually</p>
                 )}
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Biển số xe {detectedPlate ? "đã quét" : "(nhập thủ công)"}
+                  License plate {detectedPlate ? "scanned" : "(manual entry)"}
                 </label>
                 <input
                   type="text"
                   value={detectedPlate}
                   onChange={(e) => handleManualEdit(e.target.value)}
                   className="w-full px-3 py-3 text-xl font-bold text-center uppercase bg-yellow-50 border-2 border-yellow-400 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                  placeholder="VD: 29A-12345"
+                  placeholder="Ex: 29A-12345"
                 />
                 <p className="text-xs text-gray-500 mt-1 text-center">
-                  Bạn có thể chỉnh sửa biển số nếu cần
+                  You can edit the license plate if needed
                 </p>
               </div>
 
@@ -509,7 +577,7 @@ export function CameraScanner({ onBack, onScanned }: CameraScannerProps) {
                   className="flex items-center justify-center gap-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-lg font-semibold transition-colors text-sm"
                 >
                   <Camera className="w-4 h-4" />
-                  Chụp lại
+                  Retake
                 </button>
                 <button
                   onClick={confirmPlate}
@@ -517,7 +585,7 @@ export function CameraScanner({ onBack, onScanned }: CameraScannerProps) {
                   className="flex items-center justify-center gap-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
                   <Check className="w-4 h-4" />
-                  Xác nhận
+                  Confirm
                 </button>
               </div>
             </div>

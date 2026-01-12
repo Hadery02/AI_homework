@@ -60,8 +60,8 @@ router.post('/', (req, res) => {
       
       // Check for duplicate plate number error
       if (err.message && err.message.includes('UNIQUE constraint failed')) {
-        return res.status(400).json({ 
-          error: 'Biển số xe này đã tồn tại. Vui lòng nhập biển số khác!' 
+        return res.status(400).json({
+          error: 'This license plate already exists. Please enter a different license plate!'
         });
       }
       

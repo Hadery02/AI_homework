@@ -17,7 +17,7 @@ export function AddVehicleForm({ onBack, onSave, initialPlateNumber }: AddVehicl
     plateNumber: initialPlateNumber || "",
     ownerName: "",
     phone: "",
-    vehicleType: "Ô tô",
+    vehicleType: "Car",
   });
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -44,9 +44,9 @@ export function AddVehicleForm({ onBack, onSave, initialPlateNumber }: AddVehicl
     } catch (err: any) {
       // Handle duplicate plate number error
       if (err.message && err.message.includes('already exists')) {
-        setError('Biển số này đã tồn tại trong hệ thống!');
+        setError('This license plate already exists in the system!');
       } else {
-        setError(err.message || 'Lỗi khi thêm xe. Vui lòng thử lại!');
+        setError(err.message || 'Error adding vehicle. Please try again!');
       }
     } finally {
       setIsLoading(false);
@@ -72,9 +72,9 @@ export function AddVehicleForm({ onBack, onSave, initialPlateNumber }: AddVehicl
             className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">Back</span>
           </button>
-          <h1 className="text-2xl font-bold text-gray-900">Thêm xe mới</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Add New Vehicle</h1>
         </div>
 
         {/* Form Card */}
@@ -96,7 +96,7 @@ export function AddVehicleForm({ onBack, onSave, initialPlateNumber }: AddVehicl
                 htmlFor="plateNumber"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Biển số xe <span className="text-red-500">*</span>
+                License Plate <span className="text-red-500">*</span>
               </label>
               <input
                 id="plateNumber"
@@ -105,7 +105,7 @@ export function AddVehicleForm({ onBack, onSave, initialPlateNumber }: AddVehicl
                 required
                 value={formData.plateNumber}
                 onChange={handleChange}
-                placeholder="VD: 29A-12345"
+                placeholder="Ex: 29A-12345"
                 className="w-full px-4 py-3 text-lg font-semibold uppercase bg-gray-50 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
               />
             </div>
@@ -116,7 +116,7 @@ export function AddVehicleForm({ onBack, onSave, initialPlateNumber }: AddVehicl
                 htmlFor="ownerName"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Tên chủ xe <span className="text-red-500">*</span>
+                Owner Name <span className="text-red-500">*</span>
               </label>
               <input
                 id="ownerName"
@@ -125,7 +125,7 @@ export function AddVehicleForm({ onBack, onSave, initialPlateNumber }: AddVehicl
                 required
                 value={formData.ownerName}
                 onChange={handleChange}
-                placeholder="Nguyễn Văn A"
+                placeholder="John Doe"
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
               />
             </div>
@@ -136,7 +136,7 @@ export function AddVehicleForm({ onBack, onSave, initialPlateNumber }: AddVehicl
                 htmlFor="phone"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Số điện thoại <span className="text-red-500">*</span>
+                Phone Number <span className="text-red-500">*</span>
               </label>
               <input
                 id="phone"
@@ -145,7 +145,7 @@ export function AddVehicleForm({ onBack, onSave, initialPlateNumber }: AddVehicl
                 required
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="0912345678"
+                placeholder="0123456789"
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
               />
             </div>
@@ -156,7 +156,7 @@ export function AddVehicleForm({ onBack, onSave, initialPlateNumber }: AddVehicl
                 htmlFor="vehicleType"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Loại xe <span className="text-red-500">*</span>
+                Vehicle Type <span className="text-red-500">*</span>
               </label>
               <select
                 id="vehicleType"
@@ -166,10 +166,10 @@ export function AddVehicleForm({ onBack, onSave, initialPlateNumber }: AddVehicl
                 onChange={handleChange}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
               >
-                <option value="Ô tô">Ô tô</option>
-                <option value="Xe máy">Xe máy</option>
-                <option value="Xe tải">Xe tải</option>
-                <option value="Xe khác">Xe khác</option>
+                <option value="Car">Car</option>
+                <option value="Motorcycle">Motorcycle</option>
+                <option value="Truck">Truck</option>
+                <option value="Other">Other</option>
               </select>
             </div>
 
@@ -180,7 +180,7 @@ export function AddVehicleForm({ onBack, onSave, initialPlateNumber }: AddVehicl
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-4 px-6 rounded-xl font-semibold text-lg flex items-center justify-center gap-3 transition-all shadow-lg hover:shadow-xl"
             >
               <Save className="w-6 h-6" />
-              {isLoading ? "Đang lưu..." : "Lưu thông tin"}
+              {isLoading ? "Saving..." : "Save Information"}
             </button>
           </form>
         </div>

@@ -27,9 +27,9 @@ export function Dashboard({ onSearch, onAddNew, onViewList, onOpenCamera }: Dash
             <Car className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">
-            Kiểm Tra Bãi Đỗ
+            Parking Check
           </h1>
-          <p className="text-sm text-gray-600">Quản lý biển số xe</p>
+          <p className="text-sm text-gray-600">License Plate Management</p>
         </div>
 
         {/* Camera Scan Button - New Feature */}
@@ -38,13 +38,13 @@ export function Dashboard({ onSearch, onAddNew, onViewList, onOpenCamera }: Dash
           className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 px-4 rounded-xl font-semibold text-base flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-xl mb-4"
         >
           <Camera className="w-5 h-5" />
-          QUÉT BIỂN SỐ
+          SCAN LICENSE PLATE
         </button>
 
         {/* Divider */}
         <div className="flex items-center gap-3 mb-4">
           <div className="flex-1 h-px bg-gray-300"></div>
-          <span className="text-xs text-gray-500 font-medium">HOẶC NHẬP</span>
+          <span className="text-xs text-gray-500 font-medium">OR ENTER</span>
           <div className="flex-1 h-px bg-gray-300"></div>
         </div>
 
@@ -56,14 +56,14 @@ export function Dashboard({ onSearch, onAddNew, onViewList, onOpenCamera }: Dash
                 htmlFor="plateNumber"
                 className="block text-xs font-medium text-gray-700 mb-1"
               >
-                Biển số xe
+                License Plate
               </label>
               <input
                 id="plateNumber"
                 type="text"
                 value={plateNumber}
                 onChange={(e) => setPlateNumber(e.target.value)}
-                placeholder="VD: 29A-12345"
+                placeholder="Ex: 29A-12345"
                 className="w-full px-3 py-3 text-xl font-semibold text-center text-gray-900 bg-gray-50 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all uppercase"
               />
             </div>
@@ -73,7 +73,7 @@ export function Dashboard({ onSearch, onAddNew, onViewList, onOpenCamera }: Dash
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg"
             >
               <Search className="w-4 h-4" />
-              KIỂM TRA
+              CHECK
             </button>
           </form>
         </div>
@@ -85,7 +85,7 @@ export function Dashboard({ onSearch, onAddNew, onViewList, onOpenCamera }: Dash
             className="bg-white hover:bg-gray-50 text-gray-900 py-3 px-3 rounded-lg font-semibold text-xs flex items-center justify-center gap-1 transition-all shadow-md hover:shadow-lg"
           >
             <Plus className="w-4 h-4" />
-            Thêm biển số
+            Add License Plate
           </button>
 
           <button
@@ -93,7 +93,7 @@ export function Dashboard({ onSearch, onAddNew, onViewList, onOpenCamera }: Dash
             className="bg-white hover:bg-gray-50 text-gray-900 py-3 px-3 rounded-lg font-semibold text-xs flex items-center justify-center gap-1 transition-all shadow-md hover:shadow-lg"
           >
             <Car className="w-4 h-4" />
-            Danh sách
+            List
           </button>
         </div>
       </div>

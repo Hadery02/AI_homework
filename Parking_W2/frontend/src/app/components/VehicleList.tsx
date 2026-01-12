@@ -34,15 +34,15 @@ export function VehicleList({ vehicles, onBack, onAddNew, onDelete }: VehicleLis
             className="flex items-center gap-1 text-gray-700 hover:text-gray-900 transition-colors text-xs"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="font-medium">Quay lại</span>
+            <span className="font-medium">Back</span>
           </button>
-          <h1 className="text-lg font-bold text-gray-900">Danh sách xe</h1>
+          <h1 className="text-lg font-bold text-gray-900">Vehicle list</h1>
           <button
             onClick={onAddNew}
             className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-lg text-xs font-semibold transition-colors"
           >
             <Plus className="w-3 h-3" />
-            Thêm
+            Add
           </button>
         </div>
 
@@ -54,7 +54,7 @@ export function VehicleList({ vehicles, onBack, onAddNew, onDelete }: VehicleLis
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm kiếm..."
+              placeholder="Search..."
               className="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-100 transition-all text-xs"
             />
           </div>
@@ -70,7 +70,7 @@ export function VehicleList({ vehicles, onBack, onAddNew, onDelete }: VehicleLis
                 <Car className="w-12 h-12 mx-auto mb-2 opacity-50" />
               </div>
               <p className="text-gray-600 text-sm">
-                {searchQuery ? "Không tìm thấy xe nào" : "Chưa có xe nào"}
+                {searchQuery ? "No vehicles found" : "No vehicles yet"}
               </p>
             </div>
           </div>

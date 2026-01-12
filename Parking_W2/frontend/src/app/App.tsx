@@ -83,7 +83,7 @@ function App() {
     } catch (error: any) {
       console.error("Failed to add vehicle:", error);
       // Re-throw error so AddVehicleForm can catch it
-      throw new Error(error.message || 'Lỗi khi thêm xe');
+      throw new Error(error.message || 'Error adding vehicle');
     } finally {
       setLoading(false);
     }
